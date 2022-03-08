@@ -19,6 +19,8 @@ struct Animal {
 async fn main() -> tide::Result<()> {
     let port: &str = "127.0.0.1:8080";
     let mut app = tide::new();
+    tide::log::start();
+       app.at("/").get(|_| async { Ok("Hello, world!") });
     app.at("/orders/shoes").post(order_shoes);
     app.listen(port).await?;
     println!("Server listening at port {:?}", &port);
