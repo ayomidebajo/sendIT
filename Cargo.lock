@@ -3376,6 +3376,7 @@ dependencies = [
  "async-std",
  "clap 3.1.1",
  "file_transfer",
+ "futures",
  "http-server",
  "libp2p",
  "serde",
