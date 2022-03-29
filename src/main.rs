@@ -159,6 +159,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .await
             .expect("Listening not to fail."),
     };
+    //todo try other methods
 
     // In case the user provided an address of a peer on the CLI, dial it.
     if let Some(addr) = opt.peer {
