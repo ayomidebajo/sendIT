@@ -3509,6 +3509,7 @@ dependencies = [
  "log",
  "mime",
  "serde",
+ "serde_json",
  "smolapps",
  "structopt",
  "surf",

@@ -8,11 +8,17 @@ use std::io;
 use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
 use tide::Request;
+use std::fmt;
+use serde_json::json;
 
 #[derive(Debug, Deserialize)]
 struct Animal {
     name: String,
     legs: u8,
+}
+
+struct AnyThing {
+    any: String,
 }
 
 //todo read more on tcp
@@ -40,9 +46,16 @@ async fn main() -> tide::Result<()> {
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //client
             println!("Implement logic for uploading!");
-                let mut res = surf::get("http://127.0.0.1:8080/hi").await?;
-        dbg!(res.body_string().await?);
-        // println!("{:?}", res);
+        //         let mut res = surf::post("http://127.0.0.1:8080/hi").await?;
+        // dbg!(res.body_string().await?);
+        // let new_any = AnyThing {
+        //     any: String::from("stuff belongs here"),
+        // };
+        let heythere = AnyThing {
+            any: String::from("stuff belongs here"),
+        };
+        let mut req = surf::post("http://127.0.0.1:8080/hi").body_string(stringify!(heythere).to_string()).build();
+        println!("{:?}", req);
 
         // dbg!(surf::get("https://httpbin.org/get").take_bosy().await?);
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
@@ -85,11 +98,16 @@ async fn dance() {
     println!("Dancing to song")
 }
 
+
+
+
 async fn some(mut req: Request<()>) -> tide::Result {
+  
     // let mut reqr = OtherRequest::new(Method::Post, Url::parse("http://127.0.0.1:8080/hi")?);
     // req.set_body("Hello, Nori!");
-
+// dbg!(req);
+// let AnyThing { any } =  req.body_json().await?;
     // let mut res = Response::new(StatusCode::Ok);
     // res.set_body("Hello, Chashu!");
-    Ok(format!("Hello, Chashu!").into())
+    Ok(format!("jsut stuff {:?}", req).into())
 }
