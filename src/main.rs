@@ -1,16 +1,17 @@
+use async_std::channel::Receiver;
 // use clap::{App, Arg};
 // use std::net::TcpListener;
 // use file_transfer::ftp;
 // use std::fs::File;
 use futures::executor::block_on;
-use futures::future::ok;
+// use futures::future::ok;
 use std::io;
 use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
 use tide::Request;
-use std::fmt;
-use serde_json::json;
-use ngrok;
+// use std::fmt;
+// use serde_json::json;
+// use ngrok;
 
 
 #[derive(Debug, Deserialize)]
@@ -19,9 +20,9 @@ struct Animal {
     legs: u8,
 }
 
-struct AnyThing {
-    any: String,
-}
+// struct AnyThing {
+//     any: String,
+// }
 
 //todo read more on tcp
 
@@ -41,26 +42,35 @@ async fn main() -> tide::Result<()> {
             None => {
                 println!("Please choose a role, either you are a sender or a reciever");
                 ""
-                //It complains it needs a char :D
-                // break;
             }
           
         };
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //client
-            println!("Implement logic for uploading!");
-        //         let mut res = surf::post("http://127.0.0.1:8080/hi").await?;
-        // dbg!(res.body_string().await?);
-        // let new_any = AnyThing {
-        //     any: String::from("stuff belongs here"),
-        // };
-        let heythere = AnyThing {
-            any: String::from("stuff belongs here"),
-        };
-        let mut req = surf::post("http://127.0.0.1:8080/hi").body_string(stringify!(heythere).to_string()).build();
-        println!("{:?}", req);
+            println!("Please enter reciever's port");
+let mut receiver_port = String::from("");
+io::stdin().read_line(&mut receiver_port).expect("Failed to provide a port");
 
-        // dbg!(surf::get("https://httpbin.org/get").take_bosy().await?);
+if receiver_port.len() > 1 {
+       let server_port = Some(receiver_port.trim());
+
+        let chosen_port: &str = match server_port {
+            Some(val) => val,
+            None => {
+                println!("Please choose a role, either you are a sender or a reciever");
+                ""
+            }
+          
+        };
+// println!("alive {}", chosen_port)
+             // };
+
+             let client_port = format!("{}/hi",chosen_port);
+        // let mut req = surf::post(client_port).body_string(stringify!(heythere).to_string()).build();
+        let mut res = surf::get(client_port).await?;
+let string: String = res.body_string().await?;
+        println!("{:?}", string);
+}
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //server
             let port: &str = "0.0.0.0:8080";
