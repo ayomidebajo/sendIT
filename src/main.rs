@@ -10,6 +10,8 @@ use tide::prelude::*;
 use tide::Request;
 use std::fmt;
 use serde_json::json;
+use ngrok;
+
 
 #[derive(Debug, Deserialize)]
 struct Animal {
@@ -42,6 +44,7 @@ async fn main() -> tide::Result<()> {
                 //It complains it needs a char :D
                 // break;
             }
+          
         };
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //client
@@ -60,7 +63,7 @@ async fn main() -> tide::Result<()> {
         // dbg!(surf::get("https://httpbin.org/get").take_bosy().await?);
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //server
-            let port: &str = "127.0.0.1:8080";
+            let port: &str = "0.0.0.0:8080";
             let learn = learn_song();
             block_on(learn);
             let mut app = tide::new();
@@ -71,8 +74,13 @@ async fn main() -> tide::Result<()> {
             app.at("/hi").get(|_| async {
                 Ok("Hello there")
             });
+
+               
             app.listen(port).await?;
             println!("Server listening at port {:?}", &port);
+            
+
+            
         } else {
             println!("type in a letter to start this process");
         }
