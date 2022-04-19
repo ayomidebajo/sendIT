@@ -9,9 +9,7 @@ use std::io;
 use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
 use tide::Request;
-// use std::fmt;
-// use serde_json::json;
-// use ngrok;
+
 
 
 #[derive(Debug, Deserialize)]
@@ -20,9 +18,6 @@ struct Animal {
     legs: u8,
 }
 
-// struct AnyThing {
-//     any: String,
-// }
 
 //todo read more on tcp
 
@@ -62,11 +57,9 @@ if receiver_port.len() > 1 {
             }
           
         };
-// println!("alive {}", chosen_port)
-             // };
+
 
              let client_port = format!("{}/hi",chosen_port);
-        // let mut req = surf::post(client_port).body_string(stringify!(heythere).to_string()).build();
         let mut res = surf::get(client_port).await?;
 let string: String = res.body_string().await?;
         println!("{:?}", string);
