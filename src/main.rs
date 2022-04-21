@@ -1,19 +1,13 @@
 use async_std::channel::Receiver;
-// use clap::{App, Arg};
-// use std::net::TcpListener;
-// use file_transfer::ftp;
-use std::fs::File;
-use std::io::BufReader;
-use std::io::Read;
 use futures::executor::block_on;
-// use futures::future::ok;
-use std::io;
 use std::fs;
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+use std::io::BufReader;
 use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
 use tide::Request;
-
-
 
 #[derive(Debug, Deserialize)]
 struct Animal {
@@ -21,13 +15,10 @@ struct Animal {
     legs: u8,
 }
 
-
-
 //todo read more on tcp
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    // let new_tunnel = ngrok::builder().http().port(8080).run().unwrap();
     println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send port");
     let mut role = String::from("");
     io::stdin()
@@ -43,42 +34,40 @@ async fn main() -> tide::Result<()> {
                 println!("Please choose a role, either you are a sender or a reciever");
                 ""
             }
-          
         };
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
-            //client
+            //CLIENT
             println!("Please enter reciever's port");
-let mut receiver_port = String::from("");
-io::stdin().read_line(&mut receiver_port).expect("Failed to provide a port");
+            let mut receiver_port = String::from("");
+            io::stdin()
+                .read_line(&mut receiver_port)
+                .expect("Failed to provide a port");
 
+            if receiver_port.len() > 1 {
+                let server_port = Some(receiver_port.trim());
 
-if receiver_port.len() > 1 {
-       let server_port = Some(receiver_port.trim());
+                let chosen_port: &str = match server_port {
+                    Some(val) => val,
+                    None => {
+                        println!("Please choose a role, either you are a sender or a reciever");
+                        ""
+                    }
+                };
+                let f = File::open("example1.txt")?;
+                let mut buf_reader = BufReader::new(f);
+                let mut contents = String::new();
 
-        let chosen_port: &str = match server_port {
-            Some(val) => val,
-            None => {
-                println!("Please choose a role, either you are a sender or a reciever");
-                ""
+                buf_reader.read_to_string(&mut contents)?;
+                println!("meta {:?}", contents);
+
+                let client_port = format!("{}", chosen_port);
+                println!("server port {}", client_port);
+                let mut res = surf::get(client_port).await?;
+                let string: String = res.body_string().await?;
+                println!("response {:?}", string);
             }
-          
-        };
-let f = File::open("example1.txt")?;
-let mut buf_reader = BufReader::new(f);
-let mut contents = String::new();
-
-buf_reader.read_to_string(&mut contents)?;
-    // let metadata = f.metadata()?;
-    println!("meta {:?}", contents);
-
-             let client_port = format!("{}",chosen_port);
-             println!("client {}", client_port);
-        let mut res = surf::get(client_port).await?;
-let string: String = res.body_string().await?;
-        println!("response {:?}", string);
-}
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
-            //server
+            //SERVER
             let port: &str = "0.0.0.0:8080";
             let learn = learn_song();
             block_on(learn);
@@ -87,16 +76,10 @@ let string: String = res.body_string().await?;
             app.at("/").get(|_| async { Ok("Hello, world!") });
             app.at("/orders/shoes").post(order_shoes);
             app.at("/hi").post(some);
-            app.at("/hi").get(|_| async {
-                Ok("Hello there")
-            });
+            app.at("/hi").get(|_| async { Ok("Hello there") });
 
-               
             app.listen(port).await?;
             println!("Server listening at port {:?}", &port);
-            
-
-            
         } else {
             println!("type in a letter to start this process");
         }
@@ -122,15 +105,11 @@ async fn dance() {
     println!("Dancing to song")
 }
 
-
-
-
 async fn some(mut req: Request<()>) -> tide::Result {
-  
     // let mut reqr = OtherRequest::new(Method::Post, Url::parse("http://127.0.0.1:8080/hi")?);
     // req.set_body("Hello, Nori!");
-// dbg!(req);
-// let AnyThing { any } =  req.body_json().await?;
+    // dbg!(req);
+    // let AnyThing { any } =  req.body_json().await?;
     // let mut res = Response::new(StatusCode::Ok);
     // res.set_body("Hello, Chashu!");
     Ok(format!("jsut stuff {:?}", req).into())
