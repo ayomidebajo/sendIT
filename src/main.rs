@@ -2,10 +2,13 @@ use async_std::channel::Receiver;
 // use clap::{App, Arg};
 // use std::net::TcpListener;
 // use file_transfer::ftp;
-// use std::fs::File;
+use std::fs::File;
+use std::io::BufReader;
+use std::io::Read;
 use futures::executor::block_on;
 // use futures::future::ok;
 use std::io;
+use std::fs;
 use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
 use tide::Request;
@@ -19,11 +22,13 @@ struct Animal {
 }
 
 
+
 //todo read more on tcp
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send");
+    // let new_tunnel = ngrok::builder().http().port(8080).run().unwrap();
+    println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send port");
     let mut role = String::from("");
     io::stdin()
         .read_line(&mut role)
@@ -46,6 +51,7 @@ async fn main() -> tide::Result<()> {
 let mut receiver_port = String::from("");
 io::stdin().read_line(&mut receiver_port).expect("Failed to provide a port");
 
+
 if receiver_port.len() > 1 {
        let server_port = Some(receiver_port.trim());
 
@@ -57,12 +63,19 @@ if receiver_port.len() > 1 {
             }
           
         };
+let f = File::open("example1.txt")?;
+let mut buf_reader = BufReader::new(f);
+let mut contents = String::new();
 
+buf_reader.read_to_string(&mut contents)?;
+    // let metadata = f.metadata()?;
+    println!("meta {:?}", contents);
 
-             let client_port = format!("{}/hi",chosen_port);
+             let client_port = format!("{}",chosen_port);
+             println!("client {}", client_port);
         let mut res = surf::get(client_port).await?;
 let string: String = res.body_string().await?;
-        println!("{:?}", string);
+        println!("response {:?}", string);
 }
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //server
