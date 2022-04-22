@@ -65,21 +65,42 @@ async fn main() -> tide::Result<()> {
                 let mut res = surf::get(client_port).await?;
                 let string: String = res.body_string().await?;
                 println!("response {:?}", string);
+                // LOGIC TEST FOR SENDING FILES
+for entry in fs::read_dir(".")? {
+        let dir = entry?;
+        println!("{:?}", dir.path());
+    }
             }
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //SERVER
             let port: &str = "0.0.0.0:8080";
             let learn = learn_song();
             block_on(learn);
+
+            //SERVER initiation
             let mut app = tide::new();
             tide::log::start();
-            app.at("/").get(|_| async { Ok("Hello, world!") });
+            app.at("/").get(|_| async { Ok("Hello demola, world!") });
             app.at("/orders/shoes").post(order_shoes);
             app.at("/hi").post(some);
             app.at("/hi").get(|_| async { Ok("Hello there") });
 
             app.listen(port).await?;
             println!("Server listening at port {:?}", &port);
+
+// for entry in fs::read_dir(".")? {
+//         let dir = entry?;
+//         println!(" uhm {:?}", dir.path());
+//     }
+
+//  let Ok(entries) = fs::read_dir(".");
+//     for entry in entries {
+//         if let Ok(entry) = entry {
+//             // Here, `entry` is a `DirEntry`.
+//             println!("{:?}", entry.file_name());
+//         }
+//     }
+        
         } else {
             println!("type in a letter to start this process");
         }
