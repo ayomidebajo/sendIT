@@ -37,7 +37,9 @@ async fn main() -> tide::Result<()> {
         };
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //CLIENT
-            println!("Please enter reciever's port");
+            // port http://192.168.100.23:8080/
+
+                println!("Please enter reciever's port");
             let mut receiver_port = String::from("");
             io::stdin()
                 .read_line(&mut receiver_port)
@@ -53,23 +55,28 @@ async fn main() -> tide::Result<()> {
                         ""
                     }
                 };
-                let f = File::open("example1.txt")?;
-                let mut buf_reader = BufReader::new(f);
-                let mut contents = String::new();
+                    println!("enter file name to send");
+                     loop {   
+                     
+                // let f = File::open("example1.txt")?;
+                // let mut buf_reader = BufReader::new(f);
+                // let mut contents = String::new();
 
-                buf_reader.read_to_string(&mut contents)?;
-                println!("meta {:?}", contents);
+                // buf_reader.read_to_string(&mut contents)?;
+                // println!("meta {:?}", contents);
 
-                let client_port = format!("{}", chosen_port);
-                println!("server port {}", client_port);
-                let mut res = surf::get(client_port).await?;
-                let string: String = res.body_string().await?;
-                println!("response {:?}", string);
+                // let client_port = format!("{}", chosen_port);
+                // println!("server port {}", client_port);
+                // let mut res = surf::get(client_port).await?;
+                // let string: String = res.body_string().await?;
+                // println!("response {:?}", string);
+
+        }
                 // LOGIC TEST FOR SENDING FILES
-for entry in fs::read_dir(".")? {
-        let dir = entry?;
-        println!("{:?}", dir.path());
-    }
+// for entry in fs::read_dir(".")? {
+//         let dir = entry?;
+//         println!("{:?}", dir.path());
+//     }
             }
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //SERVER
