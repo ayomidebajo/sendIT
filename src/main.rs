@@ -3,6 +3,7 @@ use futures::executor::block_on;
 use std::fs;
 use std::fs::File;
 use std::io;
+use std::env;
 use std::io::prelude::*;
 use std::io::BufReader;
 use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
@@ -55,7 +56,9 @@ async fn main() -> tide::Result<()> {
                         ""
                     }
                 };
-                    println!("enter file name to send");
+                    println!("Please enter file name to send");
+                    let path = env::current_dir()?;
+    println!("The current directory is {}", path.display());
                      loop {   
                      
                 // let f = File::open("example1.txt")?;
