@@ -4,6 +4,7 @@ use std::fs;
 use std::fs::File;
 use std::io;
 use std::env;
+use ignore::{WalkBuilder, Walk};
 use std::io::prelude::*;
 use std::io::BufReader;
 use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
@@ -59,6 +60,16 @@ async fn main() -> tide::Result<()> {
                     println!("Please enter file name to send");
                     let path = env::current_dir()?;
     println!("The current directory is {}", path.display());
+
+    // To list files in current directory
+    for result in Walk::new("./") {
+    // Each item yielded by the iterator is either a directory entry or an
+    // error, so either print the path or the error.
+    match result {
+        Ok(entry) => println!("{}", entry.path().display()),
+        Err(err) => println!("ERROR: {}", err),
+    }
+}
                      loop {   
                      
                 // let f = File::open("example1.txt")?;
