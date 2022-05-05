@@ -1,13 +1,16 @@
+mod play;
+
 use async_std::channel::Receiver;
 use futures::executor::block_on;
+use ignore::{Walk, WalkBuilder};
+use std::env;
 use std::fs;
 use std::fs::File;
 use std::io;
-use std::env;
-use ignore::{WalkBuilder, Walk};
 use std::io::prelude::*;
 use std::io::BufReader;
-use tide::http::{Method, Request as OtherRequest, Response, StatusCode, Url};
+use http_types::{Method, Request as OtherRequest, Response, StatusCode, Url};
+use tide::new;
 use tide::prelude::*;
 use tide::Request;
 
@@ -17,11 +20,21 @@ struct Animal {
     legs: u8,
 }
 
+#[derive(Debug, Deserialize)]
+struct Car<'a> {
+    color: &'a str,
+}
+
+struct Action {
+    post: String,
+get: String
+}
 //todo read more on tcp
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
     println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send port");
+ 
     let mut role = String::from("");
     io::stdin()
         .read_line(&mut role)
@@ -41,7 +54,7 @@ async fn main() -> tide::Result<()> {
             //CLIENT
             // port http://192.168.100.23:8080/
 
-                println!("Please enter reciever's port");
+            println!("Please enter reciever's port");
             let mut receiver_port = String::from("");
             io::stdin()
                 .read_line(&mut receiver_port)
@@ -57,40 +70,61 @@ async fn main() -> tide::Result<()> {
                         ""
                     }
                 };
-                    println!("Please enter file name to send");
-                    let path = env::current_dir()?;
-    println!("The current directory is {}", path.display());
+                println!("Please enter file name to send, type -c followed by the filename to send a file, -g to get all sent files");
+                // let path = env::current_dir()?;
+                // println!("The current directory is {}", path.display());
 
-    // To list files in current directory
-    for result in Walk::new("./") {
-    // Each item yielded by the iterator is either a directory entry or an
-    // error, so either print the path or the error.
-    match result {
-        Ok(entry) => println!("{}", entry.path().display()),
-        Err(err) => println!("ERROR: {}", err),
-    }
+                // To list files in current directory
+                // for result in Walk::new("./") {
+                //     // Each item yielded by the iterator is either a directory entry or an
+                //     // error, so either print the path or the error.
+                //     match result {
+                //         Ok(entry) => println!("{}", entry.path().display()),
+                //         Err(err) => println!("ERROR: {}", err),
+                //     }
+                // }
+                
+
+                loop {
+let mut action_client =  String::from("");
+io::stdin().read_line(&mut action_client).expect("Failed to read line");
+println!("Acion! {}", action_client);
+
+//  match action_client.trim() {
+//     Some(val) => val,
+//     _ => println!("stuff")
+    
+// }
+
+
+match action_client.trim() {
+  "-c" => {
+    let mut req=  OtherRequest::new(Method::Get, Url::parse("http://192.168.100.23:8080/hi").unwrap());
+    req.set_body("Hello, Nori!");
+    req.body_json().await?
+    },
+    // req.set_body("Hello, Nori!");},
+  "-g" => {println!("getting stuff done")},
+  _ => {println!("just there")}
 }
-                     loop {   
-                     
-                // let f = File::open("example1.txt")?;
-                // let mut buf_reader = BufReader::new(f);
-                // let mut contents = String::new();
+                    // let f = File::open("example1.txt")?;
+                    // let mut buf_reader = BufReader::new(f);
+                    // let mut contents = String::new();
 
-                // buf_reader.read_to_string(&mut contents)?;
-                // println!("meta {:?}", contents);
+                    // buf_reader.read_to_string(&mut contents)?;
+                    // println!("meta {:?}", contents);
 
-                // let client_port = format!("{}", chosen_port);
-                // println!("server port {}", client_port);
-                // let mut res = surf::get(client_port).await?;
-                // let string: String = res.body_string().await?;
-                // println!("response {:?}", string);
-
-        }
+                    // let client_port = format!("{}", chosen_port);
+                    // println!("server port {}", client_port);
+                    // let mut res = surf::get(client_port).await?;
+                    // let string: String = res.body_string().await?;
+                    // println!("response {:?}", string);
+                }
                 // LOGIC TEST FOR SENDING FILES
-// for entry in fs::read_dir(".")? {
-//         let dir = entry?;
-//         println!("{:?}", dir.path());
-//     }
+                // for entry in fs::read_dir(".")? {
+                //         let dir = entry?;
+                //         println!("{:?}", dir.path());
+                //     }
             }
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //SERVER
@@ -109,19 +143,18 @@ async fn main() -> tide::Result<()> {
             app.listen(port).await?;
             println!("Server listening at port {:?}", &port);
 
-// for entry in fs::read_dir(".")? {
-//         let dir = entry?;
-//         println!(" uhm {:?}", dir.path());
-//     }
+        // for entry in fs::read_dir(".")? {
+        //         let dir = entry?;
+        //         println!(" uhm {:?}", dir.path());
+        //     }
 
-//  let Ok(entries) = fs::read_dir(".");
-//     for entry in entries {
-//         if let Ok(entry) = entry {
-//             // Here, `entry` is a `DirEntry`.
-//             println!("{:?}", entry.file_name());
-//         }
-//     }
-        
+        //  let Ok(entries) = fs::read_dir(".");
+        //     for entry in entries {
+        //         if let Ok(entry) = entry {
+        //             // Here, `entry` is a `DirEntry`.
+        //             println!("{:?}", entry.file_name());
+        //         }
+        //     }
         } else {
             println!("type in a letter to start this process");
         }
@@ -154,5 +187,6 @@ async fn some(mut req: Request<()>) -> tide::Result {
     // let AnyThing { any } =  req.body_json().await?;
     // let mut res = Response::new(StatusCode::Ok);
     // res.set_body("Hello, Chashu!");
+
     Ok(format!("jsut stuff {:?}", req).into())
 }

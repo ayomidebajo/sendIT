@@ -2156,6 +2156,7 @@ dependencies = [
  "file_transfer",
  "futures",
  "http-server",
+ "http-types",
  "ignore",
  "log",
  "mime",
