@@ -2152,6 +2152,7 @@ dependencies = [
  "async-std",
  "async-trait",
  "clap 3.1.1",
+ "curl",
  "env_logger",
  "file_transfer",
  "futures",

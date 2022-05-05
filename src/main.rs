@@ -7,12 +7,13 @@ use std::env;
 use std::fs;
 use std::fs::File;
 use std::io;
-use std::io::prelude::*;
-use std::io::BufReader;
+use std::io::{stdout, Write};
+// use std::io::prelude::*;
+// use std::io::BufReader;
 use http_types::{Method, Request as OtherRequest, Response, StatusCode, Url};
-use tide::new;
 use tide::prelude::*;
 use tide::Request;
+use curl::easy::Easy;
 
 #[derive(Debug, Deserialize)]
 struct Animal {
@@ -53,7 +54,8 @@ async fn main() -> tide::Result<()> {
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //CLIENT
             // port http://192.168.100.23:8080/
-
+let mut easy = Easy::new();
+easy.url("http://192.168.100.23:8080").unwrap();
             println!("Please enter reciever's port");
             let mut receiver_port = String::from("");
             io::stdin()
@@ -99,11 +101,15 @@ println!("Acion! {}", action_client);
 
 match action_client.trim() {
   "-c" => {
-    let mut req=  OtherRequest::new(Method::Get, Url::parse("http://192.168.100.23:8080/hi").unwrap());
-    req.set_body("Hello, Nori!");
-    req.body_json().await?
+   
+  easy.write_function(|data| {
+    stdout().write_all(data).unwrap();
+    Ok(data.len())
+}).unwrap();
+
+    println!(" oh hi{:?}",easy.perform().unwrap());
+    
     },
-    // req.set_body("Hello, Nori!");},
   "-g" => {println!("getting stuff done")},
   _ => {println!("just there")}
 }
