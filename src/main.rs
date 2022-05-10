@@ -7,13 +7,13 @@ use std::env;
 use std::fs;
 use std::fs::File;
 use std::io;
-use std::io::{stdout, Write};
+use std::io::{stdout, Read, Write};
 // use std::io::prelude::*;
 // use std::io::BufReader;
+use curl::easy::Easy;
 use http_types::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
 use tide::Request;
-use curl::easy::Easy;
 
 #[derive(Debug, Deserialize)]
 struct Animal {
@@ -28,14 +28,14 @@ struct Car<'a> {
 
 struct Action {
     post: String,
-get: String
+    get: String,
 }
 //todo read more on tcp
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
     println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send port");
- 
+
     let mut role = String::from("");
     io::stdin()
         .read_line(&mut role)
@@ -54,8 +54,8 @@ async fn main() -> tide::Result<()> {
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //CLIENT
             // port http://192.168.100.23:8080/
-let mut easy = Easy::new();
-easy.url("http://192.168.100.23:8080").unwrap();
+            let mut easy = Easy::new();
+            easy.url("http://192.168.100.23:8080").unwrap();
             println!("Please enter reciever's port");
             let mut receiver_port = String::from("");
             io::stdin()
@@ -85,34 +85,47 @@ easy.url("http://192.168.100.23:8080").unwrap();
                 //         Err(err) => println!("ERROR: {}", err),
                 //     }
                 // }
-                
 
                 loop {
-let mut action_client =  String::from("");
-io::stdin().read_line(&mut action_client).expect("Failed to read line");
-println!("Acion! {}", action_client);
+                    let mut action_client = String::from("");
+                    io::stdin()
+                        .read_line(&mut action_client)
+                        .expect("Failed to read line");
+                    println!("Acion! {}", action_client);
 
-//  match action_client.trim() {
-//     Some(val) => val,
-//     _ => println!("stuff")
-    
-// }
+                    //  match action_client.trim() {
+                    //     Some(val) => val,
+                    //     _ => println!("stuff")
 
+                    // }
 
-match action_client.trim() {
-  "-c" => {
-   
-  easy.write_function(|data| {
-    stdout().write_all(data).unwrap();
-    Ok(data.len())
-}).unwrap();
+                    match action_client.trim() {
+                        "-c" => {
+                            easy.write_function(|data| {
+                                stdout().write_all(data).unwrap();
+                                Ok(data.len())
+                            })
+                            .unwrap();
 
-    println!(" oh hi{:?}",easy.perform().unwrap());
-    
-    },
-  "-g" => {println!("getting stuff done")},
-  _ => {println!("just there")}
-}
+                            println!(" oh hi{:?}", easy.perform().unwrap());
+                        }
+                        "-g" => {
+                            let mut data_to_upload = &b"foobar"[..];
+                            let mut handle = Easy::new();
+                            handle.url("https://example.com/hi").unwrap();
+                            handle.post(true).unwrap();
+
+                            let mut transfer = handle.transfer();
+                            transfer
+                                .read_function(|into| Ok(data_to_upload.read(into).unwrap()))
+                                .unwrap();
+                            // transfer.perform().unwrap();
+                            println!("getting stuff done,{:?}", transfer.perform().unwrap());
+                        }
+                        _ => {
+                            println!("just there")
+                        }
+                    }
                     // let f = File::open("example1.txt")?;
                     // let mut buf_reader = BufReader::new(f);
                     // let mut contents = String::new();
