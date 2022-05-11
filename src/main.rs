@@ -100,27 +100,9 @@ async fn main() -> tide::Result<()> {
                     // }
 
                     match action_client.trim() {
-                        "-c" => {
-                            easy.write_function(|data| {
-                                stdout().write_all(data).unwrap();
-                                Ok(data.len())
-                            })
-                            .unwrap();
-
-                            println!(" oh hi{:?}", easy.perform().unwrap());
-                        }
+                        "-c" => dance(),
                         "-g" => {
-                            let mut data_to_upload = &b"foobar"[..];
-                            let mut handle = Easy::new();
-                            handle.url("https://example.com/hi").unwrap();
-                            handle.post(true).unwrap();
-
-                            let mut transfer = handle.transfer();
-                            transfer
-                                .read_function(|into| Ok(data_to_upload.read(into).unwrap()))
-                                .unwrap();
-                            // transfer.perform().unwrap();
-                            println!("getting stuff done,{:?}", transfer.perform().unwrap());
+                            sing_song();
                         }
                         _ => {
                             println!("just there")
@@ -192,11 +174,41 @@ async fn order_shoes(mut req: Request<()>) -> tide::Result {
 async fn learn_song() {
     println!("learn song")
 }
-async fn sing_song(song: &str) {
-    println!("Singing {}", song)
+ fn sing_song() -> tide::Result {
+    let mut data_to_upload = &b"hello world"[..];
+    let mut handle = Easy::new();
+    handle.url("http://192.168.100.23:8080").unwrap();
+
+      handle.write_function(|data| {
+        stdout().write_all(data).unwrap();
+        Ok(data.len())
+    })
+    .unwrap();
+       println!(" oh sing {:?}", handle.perform().unwrap());
+
+       //logic for sending post request
+    // handle.post(true).unwrap();
+
+    // let mut transfer = handle.transfer();
+    // transfer
+    //     .read_function(|into| Ok(data_to_upload.read(into).unwrap()))
+    //     .unwrap();
+    // // transfer.perform().unwrap();
+    // println!("getting stuff done,{:?}", transfer.perform().unwrap());
+
+    Ok(format!("jsut stuff").into())
 }
-async fn dance() {
-    println!("Dancing to song")
+fn dance() {
+    let mut easy = Easy::new();
+    easy.url("http://192.168.100.23:8080/hi").unwrap();
+    println!("Please enter reciever's port");
+    easy.write_function(|data| {
+        stdout().write_all(data).unwrap();
+        Ok(data.len())
+    })
+    .unwrap();
+
+    println!(" oh hi{:?}", easy.perform().unwrap());
 }
 
 async fn some(mut req: Request<()>) -> tide::Result {
