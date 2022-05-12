@@ -1,5 +1,4 @@
-mod play;
-
+mod model;
 use async_std::channel::Receiver;
 use futures::executor::block_on;
 use ignore::{Walk, WalkBuilder};
@@ -30,7 +29,7 @@ struct Action {
     post: String,
     get: String,
 }
-//todo read more on tcp
+//todo figure out how to connect this server to a database
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
@@ -73,18 +72,6 @@ async fn main() -> tide::Result<()> {
                     }
                 };
                 println!("Please enter file name to send, type -c followed by the filename to send a file, -g to get all sent files");
-                // let path = env::current_dir()?;
-                // println!("The current directory is {}", path.display());
-
-                // To list files in current directory
-                // for result in Walk::new("./") {
-                //     // Each item yielded by the iterator is either a directory entry or an
-                //     // error, so either print the path or the error.
-                //     match result {
-                //         Ok(entry) => println!("{}", entry.path().display()),
-                //         Err(err) => println!("ERROR: {}", err),
-                //     }
-                // }
 
                 loop {
                     let mut action_client = String::from("");
@@ -92,12 +79,6 @@ async fn main() -> tide::Result<()> {
                         .read_line(&mut action_client)
                         .expect("Failed to read line");
                     println!("Acion! {}", action_client);
-
-                    //  match action_client.trim() {
-                    //     Some(val) => val,
-                    //     _ => println!("stuff")
-
-                    // }
 
                     match action_client.trim() {
                         "-c" => dance(),
@@ -108,24 +89,7 @@ async fn main() -> tide::Result<()> {
                             println!("just there")
                         }
                     }
-                    // let f = File::open("example1.txt")?;
-                    // let mut buf_reader = BufReader::new(f);
-                    // let mut contents = String::new();
-
-                    // buf_reader.read_to_string(&mut contents)?;
-                    // println!("meta {:?}", contents);
-
-                    // let client_port = format!("{}", chosen_port);
-                    // println!("server port {}", client_port);
-                    // let mut res = surf::get(client_port).await?;
-                    // let string: String = res.body_string().await?;
-                    // println!("response {:?}", string);
                 }
-                // LOGIC TEST FOR SENDING FILES
-                // for entry in fs::read_dir(".")? {
-                //         let dir = entry?;
-                //         println!("{:?}", dir.path());
-                //     }
             }
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //SERVER
@@ -143,19 +107,6 @@ async fn main() -> tide::Result<()> {
 
             app.listen(port).await?;
             println!("Server listening at port {:?}", &port);
-
-        // for entry in fs::read_dir(".")? {
-        //         let dir = entry?;
-        //         println!(" uhm {:?}", dir.path());
-        //     }
-
-        //  let Ok(entries) = fs::read_dir(".");
-        //     for entry in entries {
-        //         if let Ok(entry) = entry {
-        //             // Here, `entry` is a `DirEntry`.
-        //             println!("{:?}", entry.file_name());
-        //         }
-        //     }
         } else {
             println!("type in a letter to start this process");
         }
@@ -174,27 +125,18 @@ async fn order_shoes(mut req: Request<()>) -> tide::Result {
 async fn learn_song() {
     println!("learn song")
 }
- fn sing_song() -> tide::Result {
+fn sing_song() -> tide::Result {
     let mut data_to_upload = &b"hello world"[..];
     let mut handle = Easy::new();
     handle.url("http://192.168.100.23:8080").unwrap();
 
-      handle.write_function(|data| {
-        stdout().write_all(data).unwrap();
-        Ok(data.len())
-    })
-    .unwrap();
-       println!(" oh sing {:?}", handle.perform().unwrap());
-
-       //logic for sending post request
-    // handle.post(true).unwrap();
-
-    // let mut transfer = handle.transfer();
-    // transfer
-    //     .read_function(|into| Ok(data_to_upload.read(into).unwrap()))
-    //     .unwrap();
-    // // transfer.perform().unwrap();
-    // println!("getting stuff done,{:?}", transfer.perform().unwrap());
+    handle
+        .write_function(|data| {
+            stdout().write_all(data).unwrap();
+            Ok(data.len())
+        })
+        .unwrap();
+    println!(" oh sing {:?}", handle.perform().unwrap());
 
     Ok(format!("jsut stuff").into())
 }
