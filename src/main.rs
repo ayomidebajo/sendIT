@@ -1,18 +1,21 @@
 mod model;
-use async_std::channel::Receiver;
+use std::{collections::HashMap, convert::Infallible, sync::Arc};
+use tokio::sync::Mutex;
 use futures::executor::block_on;
 use ignore::{Walk, WalkBuilder};
-use std::env;
-use std::fs;
-use std::fs::File;
+// use std::env;
+// use std::fs;
+// use std::fs::File;
 use std::io;
 use std::io::{stdout, Read, Write};
 // use std::io::prelude::*;
 // use std::io::BufReader;
 use curl::easy::Easy;
-use http_types::{Method, Request as OtherRequest, Response, StatusCode, Url};
+// use http_types::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
-use tide::Request;
+use tide::{Request, Response, StatusCode};
+
+type ItemsDb = Arc<Mutex<HashMap<usize, model::File<'static>>>>;
 
 #[derive(Debug, Deserialize)]
 struct Animal {
@@ -25,9 +28,8 @@ struct Car<'a> {
     color: &'a str,
 }
 
-struct Action {
-    post: String,
-    get: String,
+pub enum Error {
+    RewquestError
 }
 //todo figure out how to connect this server to a database
 
@@ -53,9 +55,7 @@ async fn main() -> tide::Result<()> {
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //CLIENT
             // port http://192.168.100.23:8080/
-            let mut easy = Easy::new();
-            easy.url("http://192.168.100.23:8080").unwrap();
-            println!("Please enter reciever's port");
+                  println!("Please enter reciever's port");
             let mut receiver_port = String::from("");
             io::stdin()
                 .read_line(&mut receiver_port)
@@ -71,6 +71,9 @@ async fn main() -> tide::Result<()> {
                         ""
                     }
                 };
+                let mut easy = Easy::new();
+            easy.url(chosen_port).unwrap();
+      
                 println!("Please enter file name to send, type -c followed by the filename to send a file, -g to get all sent files");
 
                 loop {
@@ -86,7 +89,7 @@ async fn main() -> tide::Result<()> {
                             sing_song();
                         }
                         _ => {
-                            println!("just there")
+                            println!("invalid command")
                         }
                     }
                 }
@@ -122,6 +125,11 @@ async fn order_shoes(mut req: Request<()>) -> tide::Result {
     Ok(format!("Hello, {}! I've put in an order for {} shoes", name, legs).into())
 }
 
+async fn test_post(mut req: Request<()>) -> tide::Result {
+    let post = req.body_json().await?;
+    println!("{:?}", post);
+    Ok(format!("Hello, {:?}!", post).into())
+}
 async fn learn_song() {
     println!("learn song")
 }
@@ -143,7 +151,9 @@ fn sing_song() -> tide::Result {
 fn dance() {
     let mut easy = Easy::new();
     easy.url("http://192.168.100.23:8080/hi").unwrap();
-    println!("Please enter reciever's port");
+    // println!("Please enter reciever's port");
+    easy.post_fields_copy(&b"hello world"[..]).unwrap();
+
     easy.write_function(|data| {
         stdout().write_all(data).unwrap();
         Ok(data.len())
@@ -162,4 +172,12 @@ async fn some(mut req: Request<()>) -> tide::Result {
     // res.set_body("Hello, Chashu!");
 
     Ok(format!("jsut stuff {:?}", req).into())
+}
+
+// pub type CustomResult = ;
+
+pub async fn get_shopping_list_items(items_db: ItemsDb) ->  Result<tide::ResponseBuilder, Error>{
+    let local_db = items_db.lock().await;
+    // let local_db: Vec<model::File<'static>> = local_db.values().cloned().collect();
+    Ok(Response::builder(200).body(json!({ "any": "Into<Body>"})))
 }
