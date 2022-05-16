@@ -35,8 +35,7 @@ pub enum Error {
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-  
-    // println!("what {}", toyota.driver_license());
+
     println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send port");
 
     let mut role = String::from("");
@@ -173,7 +172,7 @@ async fn some(mut req: Request<()>) -> tide::Result {
     // let mut res = Response::new(StatusCode::Ok);
     // res.set_body("Hello, Chashu!");
 
-    let unpack = req.take_body();
+    let unpack = req.body_string().await?;
     println!("heehe {:?}", unpack);
 
     Ok(format!("jst stuff {:?}", req).into())
