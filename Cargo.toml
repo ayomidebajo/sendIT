@@ -12,7 +12,7 @@ clap = "3.1.1"
 http-server = "0.7.0"
 tide = "0.16.0"
 async-std = { version = "1.8.0", features = ["attributes"] }
-serde = { version = "1.0", features = ["derive"]}
+serde = "1.0.79"
 # libp2p = "0.43.0"
 futures = "0.3"
 structopt = "0.3.26"
@@ -27,3 +27,4 @@ ignore = "0.4.18"
 http-types = "2.12.0"
 curl = "0.4.43"
 tokio = "1.18.2"
+reqwest = "0.11.10"

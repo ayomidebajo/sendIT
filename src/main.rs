@@ -24,17 +24,19 @@ struct Animal {
 }
 
 #[derive(Debug, Deserialize)]
-struct Car<'a> {
-    color: &'a str,
-}
-
 pub enum Error {
     RewquestError
 }
+
+
+
+
 //todo figure out how to connect this server to a database
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
+  
+    // println!("what {}", toyota.driver_license());
     println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send port");
 
     let mut role = String::from("");
@@ -152,7 +154,7 @@ fn dance() {
     let mut easy = Easy::new();
     easy.url("http://192.168.100.23:8080/hi").unwrap();
     // println!("Please enter reciever's port");
-    easy.post_fields_copy(&b"hello world"[..]).unwrap();
+    easy.post_fields_copy(&b"hello world. what us aadj"[..]).unwrap();
 
     easy.write_function(|data| {
         stdout().write_all(data).unwrap();
@@ -171,7 +173,10 @@ async fn some(mut req: Request<()>) -> tide::Result {
     // let mut res = Response::new(StatusCode::Ok);
     // res.set_body("Hello, Chashu!");
 
-    Ok(format!("jsut stuff {:?}", req).into())
+    let unpack = req.take_body();
+    println!("heehe {:?}", unpack);
+
+    Ok(format!("jst stuff {:?}", req).into())
 }
 
 // pub type CustomResult = ;
