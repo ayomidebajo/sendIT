@@ -1,13 +1,12 @@
-use clap::{ Command, Arg, ArgMatches};
+use clap::{Arg, ArgMatches, Command};
 use lazy_static::lazy_static;
 use std::env;
 
-const ABOUT: &str = "
-Find Files (ff) utility recursively searches the files whose names match the
-specified RegExp pattern in the provided directory (defaults to the current
-directory if not provided).";
+
 
 pub fn app() -> ArgMatches {
+    const ABOUT: &str = "
+Sendit is a software that allows two different desktop to share files between each other";
     lazy_static! {
         static ref WORKING_DIR_PATH: String = working_dir_path();
     }
@@ -30,11 +29,9 @@ pub fn app() -> ArgMatches {
                 .default_value(&WORKING_DIR_PATH)
                 .required(false),
         ).get_matches()
-
-  
 }
 
-  pub fn working_dir_path() -> String {
+pub fn working_dir_path() -> String {
     match env::current_dir() {
         Ok(path) => path.display().to_string(),
         Err(_) => String::from("."),
