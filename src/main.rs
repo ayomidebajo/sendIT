@@ -3,17 +3,18 @@ use std::{collections::HashMap, convert::Infallible, sync::Arc};
 use tokio::sync::Mutex;
 use futures::executor::block_on;
 use ignore::{Walk, WalkBuilder};
-// use std::env;
-// use std::fs;
-// use std::fs::File;
 use std::io;
+use clap;
+use std::process;
+use atty::Stream;
+use std::path::Path;
 use std::io::{stdout, Read, Write};
-// use std::io::prelude::*;
-// use std::io::BufReader;
 use curl::easy::Easy;
-// use http_types::{Method, Request as OtherRequest, Response, StatusCode, Url};
 use tide::prelude::*;
 use tide::{Request, Response, StatusCode};
+
+
+mod directory;
 
 type ItemsDb = Arc<Mutex<HashMap<usize, model::File<'static>>>>;
 
@@ -21,6 +22,62 @@ type ItemsDb = Arc<Mutex<HashMap<usize, model::File<'static>>>>;
 struct Animal {
     name: String,
     legs: u8,
+}
+
+#[derive(Debug)]
+struct ArgMatchesWrapper  {
+    matches: clap::ArgMatches,
+}
+
+struct Args {
+    root_path: String,
+}
+
+impl Args {
+    pub fn parse() -> Args {
+        let args_matches = ArgMatchesWrapper {
+            matches: directory::app(),
+        };
+
+        println!("arg matches {:#?}", args_matches);
+
+        args_matches.to_args()
+    }
+    
+
+    
+}
+
+impl ArgMatchesWrapper {
+ fn to_args(&self) -> Args {
+
+
+        Args {
+            root_path: self.root_path(),
+       
+        }
+    }
+
+    fn root_path(&self) -> String {
+        let root_path = self.matches.value_of("ROOT_PATH").unwrap();
+
+        if Path::new(root_path).is_dir() {
+            root_path.to_string()
+        } else {
+            let erroneous_path = if atty::is(Stream::Stderr) {
+                root_path.to_string()
+            } else {
+                String::from(root_path)
+            };
+
+            eprintln!(
+                "The specified ROOT_PATH {} is either not accessible or is not a directory",
+                erroneous_path
+            );
+
+            process::exit(1)
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -178,7 +235,6 @@ async fn some(mut req: Request<()>) -> tide::Result {
     Ok(format!("jst stuff {:?}", req).into())
 }
 
-// pub type CustomResult = ;
 
 pub async fn get_shopping_list_items(items_db: ItemsDb) ->  Result<tide::ResponseBuilder, Error>{
     let local_db = items_db.lock().await;
