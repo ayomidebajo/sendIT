@@ -24,18 +24,21 @@ struct Animal {
 }
 
 #[derive(Debug)]
-struct ArgMatchesWrapper {
+struct ArgMatchesWrapper<'a> {
     matches: clap::ArgMatches,
+    file_name: &'a str
 }
 
+#[derive(Debug)]
 struct Args {
     root_path: String,
 }
 
 impl Args {
-    pub fn parse() -> Args {
+    pub fn parse( arg_name: &str) -> Args {
         let args_matches = ArgMatchesWrapper {
             matches: directory::app(),
+            file_name: arg_name
         };
 
         println!("arg matches {:#?}", args_matches);
@@ -44,10 +47,11 @@ impl Args {
     }
 }
 
-impl ArgMatchesWrapper {
+impl <'a>ArgMatchesWrapper<'a> {
     fn to_args(&self) -> Args {
         Args {
             root_path: self.root_path(),
+
         }
     }
 
@@ -199,8 +203,14 @@ fn sing_song() -> tide::Result {
 fn dance() {
     let mut easy = Easy::new();
     easy.url("http://192.168.100.23:8080/hi").unwrap();
-    // let argd = Args.parse();
-    // println!("Please enter reciever's port");
+println!("Enter file name to send");
+
+     let mut argt = String::from("");
+                    io::stdin()
+                        .read_line(&mut argt)
+                        .expect("Failed to read line");
+    let argd = Args::parse(&argt);
+    println!("Args, {:?}", argd);
     easy.post_fields_copy(&b"hello world. what us aadj"[..])
         .unwrap();
 

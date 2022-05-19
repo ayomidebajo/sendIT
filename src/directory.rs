@@ -11,7 +11,7 @@ Sendit is a software that allows two different desktop to share files between ea
         static ref WORKING_DIR_PATH: String = working_dir_path();
     }
 
-    Command::new("ff")
+    Command::new("sendit")
         .version("1.0")
         .author("Ayomide Bajo")
         .about(ABOUT)
