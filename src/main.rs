@@ -157,7 +157,8 @@ fn dance() {
         .read_line(&mut argt)
         .expect("Failed to read line");
     let argd = Args::Args::parse(&argt);
-    println!("Args, {:?}", argd);
+    let prat = search_and_print::Walker::new(&argd).print_file_path();
+    println!("Args, {:?}", prat);
     easy.post_fields_copy(&b"hello world. what us aadj"[..])
         .unwrap();
 

@@ -1,8 +1,8 @@
 use ansi_term::Colour::Green;
 use atty::Stream;
-use ignore::{Walk, WalkBuilder, WalkState};
+use ignore::{ WalkBuilder, WalkState};
 use regex::Regex;
-use std::{io, path::Path, process};
+use std::{io, process};
 
 use crate::directory;
 use crate::Args::Args;
@@ -41,7 +41,7 @@ impl<'a> PathPrinter<'a> {
                 let colored_match = Green.bold().paint(matched_str).to_string();
                 let path = self.path.replace(matched_str, &colored_match);
                 // my change
-                // println!("see the path {}", path);
+                println!("see the path {}", path);
             }
 
             None => {
@@ -52,9 +52,11 @@ impl<'a> PathPrinter<'a> {
 }
 
 fn truncate_working_dir_path(path: String, working_dir_path: &str) -> String {
+     println!("path {}", path);
     if path.contains(&working_dir_path) {
         path.replace(&working_dir_path, ".")
     } else {
+       
         path.clone()
     }
 }
@@ -76,11 +78,12 @@ impl<'a> Walker<'a> {
         Walker { args }
     }
 
+    //Todo return a string so that we can use the path
     pub fn print_file_path(&self) {
         use std::sync::mpsc;
         use std::thread;
 
-        let thread_num: usize = 0;
+        let thread_num: usize = 10;
         let max_depth: usize = 2;
 
         let walker = WalkBuilder::new(&self.args.root_path)
@@ -99,7 +102,7 @@ impl<'a> Walker<'a> {
             }
             Ok(())
         });
-        // println!("tx {:?}", print_thread);
+        println!("tx {:?}", print_thread);
 
         let working_dir_path = directory::working_dir_path();
         walker.run(|| {
