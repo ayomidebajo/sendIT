@@ -2,11 +2,9 @@ use clap::{Arg, ArgMatches, Command};
 use lazy_static::lazy_static;
 use std::env;
 
-
-
 pub fn app() -> ArgMatches {
     const ABOUT: &str = "
-Sendit is a software that allows two different desktop to share files between each other";
+Sendit is a software that allows two different desktops share files between each other";
     lazy_static! {
         static ref WORKING_DIR_PATH: String = working_dir_path();
     }
@@ -28,7 +26,19 @@ Sendit is a software that allows two different desktop to share files between ea
                 .index(2)
                 .default_value(&WORKING_DIR_PATH)
                 .required(false),
-        ).get_matches()
+        ).arg(
+            Arg::new("exclude-directories")
+                .help("Exclude paths from the search result which are directories and not files.")
+                .short('D')
+                .long("exclude-dir-paths"),
+        ).arg(
+            Arg::new("exclude")
+                .help("Exclude files and directories matching this regular expression from the search results.")
+                .short('x')
+                .takes_value(true)
+                .long("exclude")
+        )
+        .get_matches()
 }
 
 pub fn working_dir_path() -> String {

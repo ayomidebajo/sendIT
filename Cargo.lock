@@ -72,6 +72,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ansi_term"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee49baf6cb617b853aa8d93bf420db2383fab46d314482ca2803b40d5fde979b"
+dependencies = [
+ "winapi",
+]
+
+[[package]]
 name = "anyhow"
 version = "1.0.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2035,6 +2044,7 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 name = "sendit"
 version = "0.1.0"
 dependencies = [
+ "ansi_term",
  "async-std",
  "async-trait",
  "atty",
@@ -2048,6 +2058,7 @@ dependencies = [
  "ignore",
  "lazy_static",
  "log",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

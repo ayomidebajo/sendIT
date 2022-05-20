@@ -1,19 +1,20 @@
 mod model;
-use atty::Stream;
-use clap;
+
+mod Args;
 use curl::easy::Easy;
 use futures::executor::block_on;
-use ignore::{Walk, WalkBuilder};
-use std::io;
-use std::io::{stdout, Read, Write};
-use std::path::Path;
 use std::process;
-use std::{collections::HashMap, convert::Infallible, sync::Arc};
+
+use std::io;
+use std::io::{stdout, Write};
+
+use std::{collections::HashMap, sync::Arc};
 use tide::prelude::*;
-use tide::{Request, Response, StatusCode};
+use tide::{Request, Response};
 use tokio::sync::Mutex;
 
 mod directory;
+mod search_and_print;
 
 type ItemsDb = Arc<Mutex<HashMap<usize, model::File<'static>>>>;
 
@@ -21,60 +22,6 @@ type ItemsDb = Arc<Mutex<HashMap<usize, model::File<'static>>>>;
 struct Animal {
     name: String,
     legs: u8,
-}
-
-#[derive(Debug)]
-struct ArgMatchesWrapper<'a> {
-    matches: clap::ArgMatches,
-    file_name: &'a str
-}
-
-#[derive(Debug)]
-struct Args {
-    root_path: String,
-}
-
-impl Args {
-    pub fn parse( arg_name: &str) -> Args {
-        let args_matches = ArgMatchesWrapper {
-            matches: directory::app(),
-            file_name: arg_name
-        };
-
-        println!("arg matches {:#?}", args_matches);
-
-        args_matches.to_args()
-    }
-}
-
-impl <'a>ArgMatchesWrapper<'a> {
-    fn to_args(&self) -> Args {
-        Args {
-            root_path: self.root_path(),
-
-        }
-    }
-
-    fn root_path(&self) -> String {
-        let root_path = self.matches.value_of("ROOT_PATH").unwrap();
-
-        if Path::new(root_path).is_dir() {
-            root_path.to_string()
-        } else {
-            let erroneous_path = if atty::is(Stream::Stderr) {
-                root_path.to_string()
-            } else {
-                String::from(root_path)
-            };
-
-            eprintln!(
-                "The specified ROOT_PATH {} is either not accessible or is not a directory",
-                erroneous_path
-            );
-
-            process::exit(1)
-        }
-    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -203,13 +150,13 @@ fn sing_song() -> tide::Result {
 fn dance() {
     let mut easy = Easy::new();
     easy.url("http://192.168.100.23:8080/hi").unwrap();
-println!("Enter file name to send");
+    println!("Enter file name to send");
 
-     let mut argt = String::from("");
-                    io::stdin()
-                        .read_line(&mut argt)
-                        .expect("Failed to read line");
-    let argd = Args::parse(&argt);
+    let mut argt = String::from("");
+    io::stdin()
+        .read_line(&mut argt)
+        .expect("Failed to read line");
+    let argd = Args::Args::parse(&argt);
     println!("Args, {:?}", argd);
     easy.post_fields_copy(&b"hello world. what us aadj"[..])
         .unwrap();
@@ -238,7 +185,7 @@ async fn some(mut req: Request<()>) -> tide::Result {
 }
 
 pub async fn get_shopping_list_items(items_db: ItemsDb) -> Result<tide::ResponseBuilder, Error> {
-    let local_db = items_db.lock().await;
+    // let local_db = items_db.lock().await;
     // let local_db: Vec<model::File<'static>> = local_db.values().cloned().collect();
     Ok(Response::builder(200).body(json!({ "any": "Into<Body>"})))
 }
