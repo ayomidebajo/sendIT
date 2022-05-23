@@ -79,6 +79,7 @@ impl<'a> Walker<'a> {
     }
 
     //Todo return a string so that we can use the path
+    //Todo write file upload logic
     pub fn print_file_path(&self) {
         use std::sync::mpsc;
         use std::thread;
