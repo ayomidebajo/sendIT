@@ -22,6 +22,7 @@ pub struct Args {
 
 impl Args {
     pub fn parse(arg_name: &str) -> Args {
+    // let arg_name = self.matches.value_of("PATTERN").unwrap();
         let args_matches = ArgMatchesWrapper {
             matches: directory::app(),
             file_name: arg_name,

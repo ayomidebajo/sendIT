@@ -53,28 +53,8 @@ async fn main() -> tide::Result<()> {
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //CLIENT
             // port http://192.168.100.23:8080/
-            println!("Please enter reciever's port");
-            let mut receiver_port = String::from("");
-            io::stdin()
-                .read_line(&mut receiver_port)
-                .expect("Failed to provide a port");
-
-            if receiver_port.len() > 1 {
-                let server_port = Some(receiver_port.trim());
-
-                let chosen_port: &str = match server_port {
-                    Some(val) => val,
-                    None => {
-                        println!("Please choose a role, either you are a sender or a reciever");
-                        ""
-                    }
-                };
-                let mut easy = Easy::new();
-                easy.url(chosen_port).unwrap();
-
-                println!("Please enter file name to send, type -c followed by the filename to send a file, -g to get all sent files, -q to exit");
-
-                loop {
+             println!("Please enter file name to send, type -c followed by the filename to send a file, -g to get all sent files, -q to exit");
+            loop {
                     let mut action_client = String::from("");
                     io::stdin()
                         .read_line(&mut action_client)
@@ -92,7 +72,6 @@ async fn main() -> tide::Result<()> {
                         }
                     }
                 }
-            }
         } else if chosen_role.trim() == "reciever" || chosen_role.trim() == "r" {
             //SERVER
             let port: &str = "0.0.0.0:8080";
@@ -135,7 +114,7 @@ async fn learn_song() {
 fn sing_song() -> tide::Result {
     let mut data_to_upload = &b"hello world"[..];
     let mut handle = Easy::new();
-    handle.url("http://192.168.100.23:8080").unwrap();
+    handle.url("http://0.0.0.0:8080").unwrap();
 
     handle
         .write_function(|data| {
@@ -149,15 +128,13 @@ fn sing_song() -> tide::Result {
 }
 fn dance() {
     let mut easy = Easy::new();
-    easy.url("http://192.168.100.23:8080/hi").unwrap();
+    easy.url("http://0.0.0.0:8080/hi").unwrap();
     println!("Enter file name to send");
+    let mut argd: Vec<_> = std::env::args().collect();
+    let new_arg = Args::Args::parse(&argd.swap_remove(0));
 
-    let mut argt = String::from("");
-    io::stdin()
-        .read_line(&mut argt)
-        .expect("Failed to read line");
-    let argd = Args::Args::parse(&argt);
-    let prat = search_and_print::Walker::new(&argd).print_file_path();
+    
+    let prat = search_and_print::Walker::new(&new_arg).print_file_path();
     println!("Args, {:?}", prat);
     easy.post_fields_copy(&b"hello world. what us aadj"[..])
         .unwrap();
