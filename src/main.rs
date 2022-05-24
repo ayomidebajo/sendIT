@@ -1,12 +1,12 @@
 mod model;
-
+use std::fs::File;
 mod Args;
 use curl::easy::Easy;
 use futures::executor::block_on;
 use std::process;
 
 use std::io;
-use std::io::{stdout, Write};
+use std::io::{stdout, Read, Write};
 
 use std::{collections::HashMap, sync::Arc};
 use tide::prelude::*;
@@ -103,16 +103,38 @@ async fn order_shoes(mut req: Request<()>) -> tide::Result {
     Ok(format!("Hello, {}! I've put in an order for {} shoes", name, legs).into())
 }
 
-async fn test_post(mut req: Request<()>) -> tide::Result {
-    let post = req.body_json().await?;
-    println!("{:?}", post);
-    Ok(format!("Hello, {:?}!", post).into())
+fn test_post(file_from_arg:&str) -> tide::Result {
+        let mut easy = Easy::new();
+    easy.url("http://0.0.0.0:8080/hi").unwrap();
+    // let file_from_arg = search_and_print::print_path()
+    let mut file = File::open(file_from_arg)?;
+let mut buf = [0; 4096];
+loop {
+        let n = file.read(&mut buf)?;
+        
+        if n == 0 {
+            // reached end of file
+            break;
+        }
+       
+        // easy.write_all(&buf[..n])?;
+    }
+    easy.post_fields_copy(&buf)
+        .unwrap();
+ easy.write_function(|data| {
+        stdout().write_all(data).unwrap();
+        Ok(data.len())
+    })
+    .unwrap();
+
+      println!(" oh hi{:?}", easy.perform().unwrap());
+    Ok(format!("okay sent!").into())
 }
 async fn learn_song() {
     println!("learn song")
 }
 fn sing_song() -> tide::Result {
-    let mut data_to_upload = &b"hello world"[..];
+    // let mut data_to_upload = &b"hello world"[..];
     let mut handle = Easy::new();
     handle.url("http://0.0.0.0:8080").unwrap();
 
@@ -127,25 +149,27 @@ fn sing_song() -> tide::Result {
     Ok(format!("jsut stuff").into())
 }
 fn dance() {
-    let mut easy = Easy::new();
-    easy.url("http://0.0.0.0:8080/hi").unwrap();
-    println!("Enter file name to send");
-    let mut argd: Vec<_> = std::env::args().collect();
-    let new_arg = Args::Args::parse(&argd.swap_remove(0));
-
+    // let mut easy = Easy::new();
+    // easy.url("http://0.0.0.0:8080/hi").unwrap();
+    // println!("Enter file name to send");
+    // let mut argd: Vec<_> = std::env::args().collect();
+    
+//     let arg = directory::app().value_of("PATTERN").unwrap();
+let new_arg = Args::Args::parse();
     
     let prat = search_and_print::Walker::new(&new_arg).print_file_path();
-    println!("Args, {:?}", prat);
-    easy.post_fields_copy(&b"hello world. what us aadj"[..])
-        .unwrap();
+    let pttes = 
+    println!("Args, {:?}", new_arg.filename);
+    // easy.post_fields_copy(&b"hello world. what us aadj"[..])
+    //     .unwrap();
 
-    easy.write_function(|data| {
-        stdout().write_all(data).unwrap();
-        Ok(data.len())
-    })
-    .unwrap();
+    // easy.write_function(|data| {
+    //     stdout().write_all(data).unwrap();
+    //     Ok(data.len())
+    // })
+    // .unwrap();
 
-    println!(" oh hi{:?}", easy.perform().unwrap());
+    // println!(" oh hi{:?}", easy.perform().unwrap());
 }
 
 async fn some(mut req: Request<()>) -> tide::Result {

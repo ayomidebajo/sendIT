@@ -18,17 +18,19 @@ pub struct Args {
     pub reg_exp: Regex,
     pub exclude_directories: bool,
     pub exclude_reg_exp: Option<Regex>,
+    pub filename: String
 }
 
 impl Args {
-    pub fn parse(arg_name: &str) -> Args {
+    pub fn parse() -> Args {
+        let app = directory::app();
     // let arg_name = self.matches.value_of("PATTERN").unwrap();
         let args_matches = ArgMatchesWrapper {
-            matches: directory::app(),
-            file_name: arg_name,
+            matches: app.clone(),
+            file_name: &app.value_of("PATTERN").unwrap(),
         };
 
-        println!("arg matches {:#?}", args_matches);
+        println!("arg matches {:#?}", args_matches.file_name);
 
         args_matches.to_args()
     }
@@ -41,6 +43,7 @@ impl<'a> ArgMatchesWrapper<'a> {
             reg_exp: self.pattern(),
             exclude_directories: self.exclude_direc(),
             exclude_reg_exp: self.exclude_reg_exp_pattern(),
+            filename: self.file_name.to_string(),
         }
     }
 
@@ -48,7 +51,7 @@ impl<'a> ArgMatchesWrapper<'a> {
         let input_pattern = self.matches.value_of(arg_name).unwrap();
         let formatted_pattern = format!(r#"{}"#, input_pattern).to_string();
         let regex_builder = RegexBuilder::new(&formatted_pattern)
-            .case_insensitive(false)
+            .case_insensitive(true)
             .build();
 
         match regex_builder {

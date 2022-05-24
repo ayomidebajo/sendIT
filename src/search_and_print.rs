@@ -2,15 +2,16 @@ use ansi_term::Colour::Green;
 use atty::Stream;
 use ignore::{ WalkBuilder, WalkState};
 use regex::Regex;
-use std::{io, process};
+use curl::easy::Easy;
+use std::{io, process, io::stdout, fs::File, io::Write, io::Read};
 
 use crate::directory;
 use crate::Args::Args;
 
 #[derive(Debug)]
 pub struct PathPrinter<'a> {
-    path: String,
-    reg_exp: &'a Regex,
+   pub path: String,
+    pub reg_exp: &'a Regex,
 }
 
 impl<'a> PathPrinter<'a> {
@@ -27,13 +28,24 @@ impl<'a> PathPrinter<'a> {
         }
     }
 
+   fn print_path(&self) -> String {
+     println!("Just cehecking new function, {}", self.path.to_string());
+     send_file_post(&self.path);
+    self.path.to_string()
+       
+    
+    }
+
+    
+
     fn print_to_non_tty(&self) {
         println!("{}", self.path);
     }
 
-    fn print_to_tty(&self) {
+    fn print_to_tty(&self)  {
         // my change
-        //    println!("uhm {:#?}", &self);
+           println!("uhm {:#?}", &self);
+
         match self.reg_exp.find(&self.path) {
             Some(result) => {
                 let matched_str = &self.path[result.start()..result.end()];
@@ -42,6 +54,7 @@ impl<'a> PathPrinter<'a> {
                 let path = self.path.replace(matched_str, &colored_match);
                 // my change
                 println!("see the path {}", path);
+                let _ = &self.print_path();
             }
 
             None => {
@@ -69,13 +82,16 @@ fn is_match(reg_exp: &Regex, maybe_exclude_reg_exp: &Option<Regex>, path: &str) 
     }
 }
 
+ 
+#[derive(Debug)]
 pub struct Walker<'a> {
     args: &'a Args,
+
 }
 
 impl<'a> Walker<'a> {
     pub fn new(args: &Args) -> Walker {
-        Walker { args }
+        Walker { args: args }
     }
 
     //Todo return a string so that we can use the path
@@ -139,6 +155,8 @@ impl<'a> Walker<'a> {
 
         drop(tx);
 
+        // println!("what's happening {:?}", self);
+
         if let Err(err) = print_thread.join().unwrap() {
             if err.kind() != io::ErrorKind::BrokenPipe {
                 if let Some(err_msg) = err.into() {
@@ -149,4 +167,34 @@ impl<'a> Walker<'a> {
             }
         }
     }
+}
+
+
+// I put it here because I've been craking my head on how to get the file path from this module.
+fn send_file_post(file_from_arg:&str) -> tide::Result {
+        let mut easy = Easy::new();
+    easy.url("http://0.0.0.0:8080/hi").unwrap();
+    // let file_from_arg = search_and_print::print_path()
+    let mut file = File::open(file_from_arg)?;
+let mut buf = [0; 4096];
+loop {
+        let n = file.read(&mut buf)?;
+        
+        if n == 0 {
+            // reached end of file
+            break;
+        }
+       
+        // easy.write_all(&buf[..n])?;
+    }
+    easy.post_fields_copy(&buf)
+        .unwrap();
+ easy.write_function(|data| {
+        stdout().write_all(data).unwrap();
+        Ok(data.len())
+    })
+    .unwrap();
+
+      println!(" oh hi{:?}", easy.perform().unwrap());
+    Ok(format!("okay sent!").into())
 }
