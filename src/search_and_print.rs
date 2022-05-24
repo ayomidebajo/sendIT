@@ -3,7 +3,7 @@ use atty::Stream;
 use ignore::{ WalkBuilder, WalkState};
 use regex::Regex;
 use curl::easy::Easy;
-use std::{io, process, io::stdout, fs::File, io::Write, io::Read};
+use std::{io, process, io::stdout, fs::File, io::Write, io::Read, io::BufWriter};
 
 use crate::directory;
 use crate::Args::Args;
@@ -176,7 +176,9 @@ fn send_file_post(file_from_arg:&str) -> tide::Result {
     easy.url("http://0.0.0.0:8080/hi").unwrap();
     // let file_from_arg = search_and_print::print_path()
     let mut file = File::open(file_from_arg)?;
+    let file_name = file_from_arg.as_bytes();
 let mut buf = [0; 4096];
+let post_tuple = [&buf, file_name];
 loop {
         let n = file.read(&mut buf)?;
         

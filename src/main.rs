@@ -5,7 +5,7 @@ use curl::easy::Easy;
 use futures::executor::block_on;
 use std::process;
 
-use std::io;
+use std::{io, fs};
 use std::io::{stdout, Read, Write};
 
 use std::{collections::HashMap, sync::Arc};
@@ -29,10 +29,16 @@ pub enum Error {
     RewquestError,
 }
 
+#[derive(Debug)]
+struct FileName {
+    filename: String
+}
+
 //todo figure out how to connect this server to a database
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
+
     println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send port");
 
     let mut role = String::from("");
@@ -54,6 +60,7 @@ async fn main() -> tide::Result<()> {
             //CLIENT
             // port http://192.168.100.23:8080/
              println!("Please enter file name to send, type -c followed by the filename to send a file, -g to get all sent files, -q to exit");
+              let hi = String::from("what");
             loop {
                     let mut action_client = String::from("");
                     io::stdin()
@@ -63,12 +70,11 @@ async fn main() -> tide::Result<()> {
 
                     match action_client.trim() {
                         "-c" => dance(),
-                        "-g" => {
-                            sing_song();
-                        }
                         "-q" => process::exit(1),
                         _ => {
-                            println!("invalid command")
+                            // println!("invalid command");
+                        //   process::exit(1)
+                        // &hi.to_string();
                         }
                     }
                 }
@@ -133,7 +139,7 @@ loop {
 async fn learn_song() {
     println!("learn song")
 }
-fn sing_song() -> tide::Result {
+fn sing_song() -> String {
     // let mut data_to_upload = &b"hello world"[..];
     let mut handle = Easy::new();
     handle.url("http://0.0.0.0:8080").unwrap();
@@ -146,43 +152,44 @@ fn sing_song() -> tide::Result {
         .unwrap();
     println!(" oh sing {:?}", handle.perform().unwrap());
 
-    Ok(format!("jsut stuff").into())
+    // Ok(format!("jsut stuff").into());
+   let test_string = String::from("hello worfld");
+   test_string
 }
+
 fn dance() {
-    // let mut easy = Easy::new();
-    // easy.url("http://0.0.0.0:8080/hi").unwrap();
-    // println!("Enter file name to send");
-    // let mut argd: Vec<_> = std::env::args().collect();
-    
-//     let arg = directory::app().value_of("PATTERN").unwrap();
+ 
 let new_arg = Args::Args::parse();
     
     let prat = search_and_print::Walker::new(&new_arg).print_file_path();
-    let pttes = 
     println!("Args, {:?}", new_arg.filename);
+    let file = FileName {
+        filename: new_arg.filename.to_string(),
+    };
     // easy.post_fields_copy(&b"hello world. what us aadj"[..])
-    //     .unwrap();
 
-    // easy.write_function(|data| {
-    //     stdout().write_all(data).unwrap();
-    //     Ok(data.len())
-    // })
-    // .unwrap();
-
-    // println!(" oh hi{:?}", easy.perform().unwrap());
+// new_arg.filename.to_string()
 }
 
+
+
 async fn some(mut req: Request<()>) -> tide::Result {
+    // let new_arg = Args::Args::parse();
+    
+    // let prat = search_and_print::Walker::new(&new_arg).print_file_path();
     // let mut reqr = OtherRequest::new(Method::Post, Url::parse("http://127.0.0.1:8080/hi")?);
     // req.set_body("Hello, Nori!");
     // dbg!(req);
+
     // let AnyThing { any } =  req.body_json().await?;
     // let mut res = Response::new(StatusCode::Ok);
     // res.set_body("Hello, Chashu!");
-
-    let unpack = req.body_string().await?;
-    println!("heehe {:?}", unpack);
-
+// let name = dance();
+// FileName
+// println!("prats , {:?}", prat);
+    let unpack = req.body_bytes().await?;
+    fs::write("example.txt", &unpack).expect("unable to write file");
+    // println!("heehe {:?}", unpack);
     Ok(format!("jst stuff {:?}", req).into())
 }
 
