@@ -18,13 +18,13 @@ pub struct Args {
     pub reg_exp: Regex,
     pub exclude_directories: bool,
     pub exclude_reg_exp: Option<Regex>,
-    pub filename: String
+    pub filename: String,
 }
 
 impl Args {
     pub fn parse() -> Args {
         let app = directory::app();
-    // let arg_name = self.matches.value_of("PATTERN").unwrap();
+        // let arg_name = self.matches.value_of("PATTERN").unwrap();
         let args_matches = ArgMatchesWrapper {
             matches: app.clone(),
             file_name: &app.value_of("PATTERN").unwrap(),

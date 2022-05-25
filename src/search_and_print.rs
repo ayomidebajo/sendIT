@@ -1,17 +1,35 @@
-use ansi_term::Colour::Green;
-use atty::Stream;
-use ignore::{ WalkBuilder, WalkState};
-use regex::Regex;
-use curl::easy::Easy;
-use std::{io, process, io::stdout, fs::File, io::Write, io::Read, io::BufWriter};
-
 use crate::directory;
 use crate::Args::Args;
+use ansi_term::Colour::Green;
+use atty::Stream;
+use bson::{from_bson, from_document, bson, Bson, Document};
+use curl::easy::Easy;
+use ignore::{WalkBuilder, WalkState};
+use regex::Regex;
+use serde_bytes::Bytes;
+use serde_json;
+use std::{fs::File, io, io::stdout, io::Read, io::Write, process};
 
 #[derive(Debug)]
 pub struct PathPrinter<'a> {
-   pub path: String,
+    pub path: String,
     pub reg_exp: &'a Regex,
+}
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct FileSearch {
+    pub file_bytes: Vec<u8>,
+    pub file_name: String,
+    // #[serde(with = "serde_bytes")]
+    // byte_buf: Vec<u8>,
+}
+
+impl  FileSearch {
+    pub fn new(file_bytes:&[u8], file_name: String) -> FileSearch {
+        FileSearch { file_bytes: file_bytes.to_vec(), file_name }
+    }
 }
 
 impl<'a> PathPrinter<'a> {
@@ -28,23 +46,19 @@ impl<'a> PathPrinter<'a> {
         }
     }
 
-   fn print_path(&self) -> String {
-     println!("Just cehecking new function, {}", self.path.to_string());
-     send_file_post(&self.path);
-    self.path.to_string()
-       
-    
+    fn print_path(&self) -> String {
+        // println!("Just cehecking new function, {}", self.path.to_string());
+        send_file_post(&self.path);
+        self.path.to_string()
     }
-
-    
 
     fn print_to_non_tty(&self) {
         println!("{}", self.path);
     }
 
-    fn print_to_tty(&self)  {
+    fn print_to_tty(&self) {
         // my change
-           println!("uhm {:#?}", &self);
+        // println!("uhm {:#?}", &self);
 
         match self.reg_exp.find(&self.path) {
             Some(result) => {
@@ -53,7 +67,7 @@ impl<'a> PathPrinter<'a> {
                 let colored_match = Green.bold().paint(matched_str).to_string();
                 let path = self.path.replace(matched_str, &colored_match);
                 // my change
-                println!("see the path {}", path);
+                // println!("see the path {}", path);
                 let _ = &self.print_path();
             }
 
@@ -65,11 +79,10 @@ impl<'a> PathPrinter<'a> {
 }
 
 fn truncate_working_dir_path(path: String, working_dir_path: &str) -> String {
-     println!("path {}", path);
+    // println!("path {}", path);
     if path.contains(&working_dir_path) {
         path.replace(&working_dir_path, ".")
     } else {
-       
         path.clone()
     }
 }
@@ -82,11 +95,9 @@ fn is_match(reg_exp: &Regex, maybe_exclude_reg_exp: &Option<Regex>, path: &str) 
     }
 }
 
- 
 #[derive(Debug)]
 pub struct Walker<'a> {
     args: &'a Args,
-
 }
 
 impl<'a> Walker<'a> {
@@ -169,34 +180,42 @@ impl<'a> Walker<'a> {
     }
 }
 
+// It takes in a file path.
+fn send_file_post(file_from_arg: &str) -> tide::Result {
 
-// I put it here because I've been craking my head on how to get the file path from this module.
-fn send_file_post(file_from_arg:&str) -> tide::Result {
-        let mut easy = Easy::new();
+    // initialise
+    let mut easy = Easy::new();
     easy.url("http://0.0.0.0:8080/hi").unwrap();
-    // let file_from_arg = search_and_print::print_path()
-    let mut file = File::open(file_from_arg)?;
-    let file_name = file_from_arg.as_bytes();
-let mut buf = [0; 4096];
-let post_tuple = [&buf, file_name];
-loop {
-        let n = file.read(&mut buf)?;
-        
-        if n == 0 {
-            // reached end of file
-            break;
-        }
-       
-        // easy.write_all(&buf[..n])?;
-    }
-    easy.post_fields_copy(&buf)
-        .unwrap();
- easy.write_function(|data| {
-        stdout().write_all(data).unwrap();
-        Ok(data.len())
-    })
-    .unwrap();
 
-      println!(" oh hi{:?}", easy.perform().unwrap());
+    let file = std::fs::read(file_from_arg)?;
+
+    let (.., file_name) = file_from_arg.rsplit_once(std::path::MAIN_SEPARATOR).unwrap();
+    // let new_post = FileSearch::new(&buf, file_from_arg.to_owned());
+    let new_post = FileSearch {
+        file_name: file_name.to_string(),
+        file_bytes: file
+    };
+
+    let pu = serde_json::to_vec(&new_post).unwrap();
+    
+    easy.post(true).unwrap();
+    easy.post_field_size(pu.len() as u64).unwrap();
+
+    let mut transfer = easy.transfer();
+    transfer.read_function(|buf| {
+        Ok(pu.as_slice().read(buf).unwrap_or(0))
+    }).unwrap();
+    transfer.perform().unwrap();
+
+//     easy.post_fields_copy(pu.as_bytes()).unwrap();
+//     // easy.post_fields_copy(&file_name_bytes).unwrap();
+//     easy.write_function(|data| {
+//         stdout().write_all(data).unwrap();
+//         Ok(data.len())
+//     })
+//     .unwrap();
+    
+//  easy.perform().unwrap();
+    // println!(" oh hi{:?}", easy.perform().unwrap());
     Ok(format!("okay sent!").into())
 }
