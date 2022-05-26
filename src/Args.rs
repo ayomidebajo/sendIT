@@ -24,13 +24,12 @@ pub struct Args {
 impl Args {
     pub fn parse() -> Args {
         let app = directory::app();
-        // let arg_name = self.matches.value_of("PATTERN").unwrap();
         let args_matches = ArgMatchesWrapper {
             matches: app.clone(),
             file_name: &app.value_of("PATTERN").unwrap(),
         };
 
-        println!("arg matches {:#?}", args_matches.file_name);
+        // println!("arg matches {:#?}", args_matches.file_name);
 
         args_matches.to_args()
     }
