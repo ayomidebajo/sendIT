@@ -21,3 +21,5 @@ The receiver should receive the file✨
 
 Note the file search is only within your project directory!
 
+This projects works well for Mac and Linux users, not so sure about windows PCs.
+
