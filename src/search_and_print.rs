@@ -1,20 +1,19 @@
-use crate::directory;
 use crate::args::Args;
+use crate::directory;
 use ansi_term::Colour::Green;
 use atty::Stream;
 use curl::easy::Easy;
 use ignore::{WalkBuilder, WalkState};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{ io,  io::Read, process};
+use std::{io, io::Read, process};
 
 #[derive(Debug)]
 pub struct PathPrinter<'a> {
     pub path: String,
     pub reg_exp: &'a Regex,
+    port_addr: String,
 }
-
-
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct FileSearch {
@@ -22,15 +21,18 @@ pub struct FileSearch {
     pub file_name: String,
 }
 
-impl  FileSearch {
-    pub fn _new(file_bytes:&[u8], file_name: String) -> FileSearch {
-        FileSearch { file_bytes: file_bytes.to_vec(), file_name }
+impl FileSearch {
+    pub fn _new(file_bytes: &[u8], file_name: String) -> FileSearch {
+        FileSearch {
+            file_bytes: file_bytes.to_vec(),
+            file_name,
+        }
     }
 }
 
 impl<'a> PathPrinter<'a> {
-    pub fn new(path: String, reg_exp: &Regex) -> PathPrinter {
-        PathPrinter { path, reg_exp }
+    pub fn new(path: String, reg_exp: &Regex, port_addr: String) -> PathPrinter {
+        PathPrinter { path, reg_exp, port_addr  }
     }
 
     pub fn print(&self) {
@@ -42,8 +44,8 @@ impl<'a> PathPrinter<'a> {
     }
 
     fn print_path(&self) -> String {
-//  implement a error handler
-        send_file_post(&self.path);
+        //  implement a error handler
+        send_file_post(&self.path, &self.port_addr);
         self.path.to_string()
     }
 
@@ -58,7 +60,7 @@ impl<'a> PathPrinter<'a> {
 
                 let colored_match = Green.bold().paint(matched_str).to_string();
                 let _path = self.path.replace(matched_str, &colored_match);
-                
+
                 let _ = &self.print_path();
             }
 
@@ -112,10 +114,11 @@ impl<'a> Walker<'a> {
 
         let (tx, rx) = mpsc::channel::<String>();
         let reg_exp = self.args.reg_exp.clone();
+        let port = self.args.port_address.clone();
 
         let print_thread = thread::spawn(move || -> io::Result<()> {
             for path in rx.iter() {
-                PathPrinter::new(path, &reg_exp).print();
+                PathPrinter::new(path, &reg_exp, String::from(&port)).print();
             }
             Ok(())
         });
@@ -168,30 +171,34 @@ impl<'a> Walker<'a> {
 }
 
 // It takes in a file path.
-fn send_file_post(file_from_arg: &str) -> tide::Result {
-
+fn send_file_post(file_from_arg: &str, port_addr: &str) -> tide::Result {
     // initialise
     let mut easy = Easy::new();
-    easy.url("http://0.0.0.0:8080/hi").unwrap();
+    let port = format!("{}/hi", port_addr);
+    easy.url(&port).unwrap();
+    
 
     let file = std::fs::read(file_from_arg)?;
 
-    let (.., file_name) = file_from_arg.rsplit_once(std::path::MAIN_SEPARATOR).unwrap();
- 
+    let (.., file_name) = file_from_arg
+        .rsplit_once(std::path::MAIN_SEPARATOR)
+        .unwrap();
+
     let new_post = FileSearch {
         file_name: file_name.to_string(),
-        file_bytes: file
+        // file_name: "hey.txt".to_string(),
+        file_bytes: file,
     };
 
     let pu = serde_json::to_vec(&new_post).unwrap();
-    
+
     easy.post(true).unwrap();
     easy.post_field_size(pu.len() as u64).unwrap();
 
     let mut transfer = easy.transfer();
-    transfer.read_function(|buf| {
-        Ok(pu.as_slice().read(buf).unwrap_or(0))
-    }).unwrap();
+    transfer
+        .read_function(|buf| Ok(pu.as_slice().read(buf).unwrap_or(0)))
+        .unwrap();
     transfer.perform().unwrap();
 
     Ok(format!("okay sent!").into())

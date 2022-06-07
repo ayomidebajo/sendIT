@@ -1,9 +1,9 @@
-mod model;
 mod args;
+mod model;
 use futures::executor::block_on;
 use std::process;
-use std::{fs, io};
 use std::{collections::HashMap, sync::Arc};
+use std::{fs, io};
 use tide::prelude::*;
 use tide::{Request, Response};
 use tokio::sync::Mutex;
@@ -33,7 +33,7 @@ pub enum Error {
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send");
+    println!("Please choose a role, you're either a sender or a reciever, type receiver or r to recieve, type sender or s to send and the name of the file you want to send");
 
     let mut role = String::from("");
     io::stdin()
@@ -52,8 +52,11 @@ async fn main() -> tide::Result<()> {
         };
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //CLIENT
-            println!("Please enter file name to send, type -c followed send the file, and -q to exit");
-        
+
+            println!(
+                "Please enter file name to send, type -c followed send the file, and -q to exit"
+            );
+
             loop {
                 let mut action_client = String::from("");
                 io::stdin()
@@ -66,7 +69,6 @@ async fn main() -> tide::Result<()> {
                     "-q" => process::exit(1),
                     _ => {
                         println!("invalid command");
-                      
                     }
                 }
             }
@@ -116,18 +118,15 @@ fn send_file() {
 }
 
 async fn some(mut req: Request<()>) -> tide::Result {
-
     let file_size = req.body_bytes().await?;
 
     let file: search_and_print::FileSearch = serde_json::from_slice(&*file_size).unwrap();
     //  println!("heehe 2 {:?}", &file);
     fs::write(file.file_name, file.file_bytes).expect("unable to write file");
 
-   
     Ok(format!("jst stuff {:?}", req).into())
 }
 // test function
 pub async fn get_shopping_list_items(_items_db: ItemsDb) -> Result<tide::ResponseBuilder, Error> {
-
     Ok(Response::builder(200).body(json!({ "any": "Into<Body>"})))
 }

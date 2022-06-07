@@ -12,13 +12,14 @@ pub struct ArgMatchesWrapper<'a> {
     file_name: &'a str,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Args {
     pub root_path: String,
     pub reg_exp: Regex,
     pub exclude_directories: bool,
     pub exclude_reg_exp: Option<Regex>,
     pub filename: String,
+    pub port_address: String,
 }
 
 impl Args {
@@ -28,8 +29,7 @@ impl Args {
             matches: app.clone(),
             file_name: &app.value_of("PATTERN").unwrap(),
         };
-
-        // println!("arg matches {:#?}", args_matches.file_name);
+        // println!("arg matches {:#?}", args_matches.matches);
 
         args_matches.to_args()
     }
@@ -43,6 +43,7 @@ impl<'a> ArgMatchesWrapper<'a> {
             exclude_directories: self.exclude_direc(),
             exclude_reg_exp: self.exclude_reg_exp_pattern(),
             filename: self.file_name.to_string(),
+            port_address: self.port_addr(),
         }
     }
 
@@ -108,5 +109,9 @@ impl<'a> ArgMatchesWrapper<'a> {
         } else {
             None
         }
+    }
+    pub fn port_addr(&self) -> String {
+        println!("port {}", self.matches.value_of("PORT").unwrap());
+        self.matches.value_of("PORT").unwrap().to_string()
     }
 }

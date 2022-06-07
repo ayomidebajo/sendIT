@@ -13,20 +13,27 @@ Sendit is a software that allows two different desktops share files between each
         .version("1.0")
         .author("Ayomide Bajo")
         .about(ABOUT)
-        .max_term_width(80)
+        .max_term_width(100)
         .arg(
             Arg::new("PATTERN")
                 .help("Find files whose name (path) matches this substring or the regular expression.")
                 .index(1)
                 .required(true),
         )
-        .arg(
+       .arg(
+            Arg::new("PORT")
+            .help("port address of the receiver")
+            .index(2)
+            .required(true)
+       )
+         .arg(
             Arg::new("ROOT_PATH")
                 .help("Path to the directory to search files inside.")
-                .index(2)
+                .index(3)
                 .default_value(&WORKING_DIR_PATH)
                 .required(false),
-        ).arg(
+        )
+        .arg(
             Arg::new("exclude-directories")
                 .help("Exclude paths from the search result which are directories and not files.")
                 .short('D')
