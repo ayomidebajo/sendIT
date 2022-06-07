@@ -14,6 +14,8 @@ mod search_and_print;
 type ItemsDb = Arc<Mutex<HashMap<usize, model::File<'static>>>>;
 
 #[derive(Debug, Deserialize)]
+
+// test struct to test out requests
 struct Animal {
     name: String,
     legs: u8,
@@ -99,6 +101,7 @@ async fn main() -> tide::Result<()> {
 }
 
 async fn order_shoes(mut req: Request<()>) -> tide::Result {
+    // testing and practice=ing how to unwrap a request
     let Animal { name, legs } = req.body_json().await?;
     Ok(format!("Hello, {}! I've put in an order for {} shoes", name, legs).into())
 }
