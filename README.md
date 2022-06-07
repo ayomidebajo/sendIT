@@ -21,5 +21,7 @@ The receiver should receive the file✨
 
 Note the file search is only within your project directory!
 
+Note also that if you send a file that the receiver already has, it'll just replace it.
+
 This projects works well for Mac and Linux users, not so sure about windows PCs.
 
