@@ -17,6 +17,8 @@ Next type `ifconfig` this command helps to tell you your machine's ip addr. Just
 
 To send, go back to the project directory, in another laptop to test out this functionality of sending to a different computer (you also open another terminal instead). To run the sender's functionality type `cargo run FILENAME PORT_ADDRESS` 
 
+Sender will be asked to input one more command "-c" to finally send the file.
+
 The receiver should receive the file✨
 
 Note the file search is only within your project directory!
