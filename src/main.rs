@@ -56,7 +56,7 @@ async fn main() -> tide::Result<()> {
             //CLIENT
 
             println!(
-                "Please enter file name to send, type -c followed send the file, and -q to exit"
+                "Type -c to send the file, and -q to exit"
             );
 
             loop {
