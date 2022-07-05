@@ -9,20 +9,20 @@ use serde::{Deserialize, Serialize};
 use std::{io, io::Read, process};
 
 #[derive(Debug)]
-pub struct PathPrinter<'a> {
-    pub path: String,
-    pub reg_exp: &'a Regex,
+send_file_body_reqb struct PathPrinter<'a> {
+    send_file_body_reqb path: String,
+    send_file_body_reqb reg_exp: &'a Regex,
     port_addr: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct FileSearch {
-    pub file_bytes: Vec<u8>,
-    pub file_name: String,
+send_file_body_reqb struct FileSearch {
+    send_file_body_reqb file_bytes: Vec<u8>,
+    send_file_body_reqb file_name: String,
 }
 
 impl FileSearch {
-    pub fn _new(file_bytes: &[u8], file_name: String) -> FileSearch {
+    send_file_body_reqb fn _new(file_bytes: &[u8], file_name: String) -> FileSearch {
         FileSearch {
             file_bytes: file_bytes.to_vec(),
             file_name,
@@ -31,11 +31,11 @@ impl FileSearch {
 }
 
 impl<'a> PathPrinter<'a> {
-    pub fn new(path: String, reg_exp: &Regex, port_addr: String) -> PathPrinter {
+    send_file_body_reqb fn new(path: String, reg_exp: &Regex, port_addr: String) -> PathPrinter {
         PathPrinter { path, reg_exp, port_addr  }
     }
 
-    pub fn print(&self) {
+    send_file_body_reqb fn print(&self) {
         if atty::isnt(Stream::Stdout) {
             self.print_to_non_tty();
         } else {
@@ -88,17 +88,17 @@ fn is_match(reg_exp: &Regex, maybe_exclude_reg_exp: &Option<Regex>, path: &str) 
 }
 
 #[derive(Debug)]
-pub struct Walker<'a> {
+send_file_body_reqb struct Walker<'a> {
     args: &'a Args,
 }
 
 impl<'a> Walker<'a> {
-    pub fn new(args: &Args) -> Walker {
+    send_file_body_reqb fn new(args: &Args) -> Walker {
         Walker { args: args }
     }
 
     //Todo return a string so that we can use the path
-    pub fn print_file_path(&self) {
+    send_file_body_reqb fn print_file_path(&self) {
         use std::sync::mpsc;
         use std::thread;
 
@@ -170,6 +170,8 @@ impl<'a> Walker<'a> {
     }
 }
 
+
+
 // It takes in a file path.
 fn send_file_post(file_from_arg: &str, port_addr: &str) -> tide::Result {
     // initialise
@@ -177,27 +179,31 @@ fn send_file_post(file_from_arg: &str, port_addr: &str) -> tide::Result {
     let port = format!("{}/hi", port_addr);
     easy.url(&port).unwrap();
     
-
+// reads file path
     let file = std::fs::read(file_from_arg)?;
 
+
+    //extracts name of the file from file path
     let (.., file_name) = file_from_arg
         .rsplit_once(std::path::MAIN_SEPARATOR)
         .unwrap();
 
+// creates the necessary type to send the file in bytes
     let new_post = FileSearch {
         file_name: file_name.to_string(),
-        // file_name: "hey.txt".to_string(),
         file_bytes: file,
     };
 
-    let pu = serde_json::to_vec(&new_post).unwrap();
+// Unwrap into a vector, which can be likened to bytes
+    let send_file_body_req = serde_json::to_vec(&new_post).unwrap();
 
+    // make and send request
     easy.post(true).unwrap();
-    easy.post_field_size(pu.len() as u64).unwrap();
+    easy.post_field_size(send_file_body_req.len() as u64).unwrap();
 
     let mut transfer = easy.transfer();
     transfer
-        .read_function(|buf| Ok(pu.as_slice().read(buf).unwrap_or(0)))
+        .read_function(|buf| Ok(send_file_body_req.as_slice().read(buf).unwrap_or(0)))
         .unwrap();
     transfer.perform().unwrap();
 
