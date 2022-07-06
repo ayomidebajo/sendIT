@@ -49,6 +49,7 @@ impl<'a> PathPrinter<'a> {
 
     fn print_path(&self) -> String {
         //  implement a error handler
+        // Todo Handle error
         send_file_post(&self.path, &self.port_addr);
         self.path.to_string()
     }
