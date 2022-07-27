@@ -1,12 +1,14 @@
-use crate::args::Args;
 use crate::directory;
+use crate::{args::Args, some};
 use ansi_term::Colour::Green;
 use atty::Stream;
 use curl::easy::Easy;
+use http_types::Error;
 use ignore::{WalkBuilder, WalkState};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{io, io::Read, process};
+use tide::Response;
 
 #[derive(Debug)]
 pub struct PathPrinter<'a> {
@@ -50,9 +52,8 @@ impl<'a> PathPrinter<'a> {
     fn print_path(&self) -> String {
         //  implement a error handler
         // Todo Handle error
-     send_file_post(&self.path, &self.port_addr);
+        send_file_post(&self.path, &self.port_addr);
 
-   
         self.path.to_string()
     }
 
@@ -203,14 +204,19 @@ fn send_file_post(file_from_arg: &str, port_addr: &str) -> tide::Result {
 
     // make and send request
     easy.post(true).unwrap();
-    easy.post_field_size(send_file_req_body.len() as u64)
-        .unwrap();
+    match easy.post_field_size(send_file_req_body.len() as u64) {
+        Ok(_) => println!("transfer ready"),
+        Err(_) => println!("Transfer prepping gone wrong!"),
+    }
 
     let mut transfer = easy.transfer();
-    transfer
+
+    let res = transfer
         .read_function(|buf| Ok(send_file_req_body.as_slice().read(buf).unwrap_or(0)))
         .unwrap();
-    transfer.perform().unwrap();
 
-    Ok(format!("okay sent!").into())
+    transfer.perform().unwrap();
+    println!("kilometer {:?}", res);
+
+    Ok(format!("Hell yeah").into())
 }

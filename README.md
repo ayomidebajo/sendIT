@@ -27,3 +27,7 @@ Note also that if you send a file that the receiver already has, it'll just repl
 
 This projects works well for Mac and Linux users, not so sure about windows PCs.
 
+New features added
+
+- If you edit the current file you sent and your terminal is still running, just type -c to resend the file, this is replace the old one you sent with the newly modified one!
+
