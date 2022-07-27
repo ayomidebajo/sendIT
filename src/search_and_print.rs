@@ -49,8 +49,7 @@ impl<'a> PathPrinter<'a> {
     }
 
     fn print_path(&self) -> String {
-        //  implement a error handler
-        // Todo Handle error
+    //  This is the function that handles the file path and name and then finally sends the file
         send_file_post(&self.path, &self.port_addr).expect_err("You didn't add the file path or name or the port, or maybe even both");
 
         self.path.to_string()
