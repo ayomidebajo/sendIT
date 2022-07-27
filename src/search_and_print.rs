@@ -1,14 +1,13 @@
 use crate::directory;
-use crate::{args::Args, some};
+use crate::{args::Args};
 use ansi_term::Colour::Green;
 use atty::Stream;
 use curl::easy::Easy;
-use http_types::Error;
 use ignore::{WalkBuilder, WalkState};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{io, io::Read, process};
-use tide::Response;
+
 
 #[derive(Debug)]
 pub struct PathPrinter<'a> {
@@ -52,7 +51,7 @@ impl<'a> PathPrinter<'a> {
     fn print_path(&self) -> String {
         //  implement a error handler
         // Todo Handle error
-        send_file_post(&self.path, &self.port_addr);
+        send_file_post(&self.path, &self.port_addr).expect_err("You didn't add the file path or name or the port, or maybe even both");
 
         self.path.to_string()
     }
