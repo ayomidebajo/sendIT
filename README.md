@@ -15,7 +15,7 @@ To receive open your terminal and run `cargo run` and then open another terminal
 
 Next type `ifconfig` this command helps to tell you your machine's ip addr. Just look out for the Key `CSUM>` you'll see it beside "inet" (i.e "inet 198:991:900:00). Copy this or keep it somewhere. Then add the port number to it (i.e 198:991:900:00:8080). This is what the sender will use in the argument for the port address when sending.
 
-To send, go back to the project directory, in another laptop to test out this functionality of sending to a different computer (you also open another terminal instead). To run the sender's functionality type `cargo run FILENAME PORT_ADDRESS` 
+To send, go back to the project directory, in another laptop to test out this functionality of sending to a different computer (you can also open another terminal instead). To run the sender's functionality type `cargo run FILENAME PORT_ADDRESS` 
 
 Sender will be asked to input one more command "-c" to finally send the file.
 
@@ -29,5 +29,5 @@ This projects works well for Mac and Linux users, not so sure about windows PCs.
 
 New features added
 
-- If you edit the current file you sent and your terminal is still running, just type -c to resend the file, this is replace the old one you sent with the newly modified one!
+- If you edit the current file you sent and your terminal is still running, just type -c to resend the file, this will replace the old one you sent with the newly modified one!
 
