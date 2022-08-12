@@ -214,7 +214,7 @@ fn send_file_post(file_from_arg: &str, port_addr: &str) -> tide::Result {
         .unwrap();
 
     transfer.perform().unwrap();
-    println!("kilometer {:?}", res);
+    // println!("kilometer {:?}", res);
 
     Ok(format!("Hell yeah").into())
 }

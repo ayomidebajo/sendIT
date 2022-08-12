@@ -30,4 +30,5 @@ This projects works well for Mac and Linux users, not so sure about windows PCs.
 New features added
 
 - If you edit the current file you sent and your terminal is still running, just type -c to resend the file, this will replace the old one you sent with the newly modified one!
+- Devs can change the file search levels
 

@@ -129,7 +129,8 @@ async fn some(mut req: Request<()>) -> tide::Result {
 
     Ok(format!("jst stuff {:?}", req).into())
 }
-// test function
+
+// test functions feel free to edit this to test out the functionalities
 pub async fn get_shopping_list_items(_items_db: ItemsDb) -> Result<tide::ResponseBuilder, Error> {
     Ok(Response::builder(200).body(json!({ "any": "Into<Body>"})))
 }
