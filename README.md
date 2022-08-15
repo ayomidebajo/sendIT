@@ -3,7 +3,8 @@ Send files to anyone using https
 
 This project is built with Rust
 
-Special thanks to @vishaltelangre for his project on searching files! I implemented his logic and remixed it for this project.
+Special thanks to @vishaltelangre for his project on searching files! I implemented his logic and remixed it for this project. Here is the link to the repo
+https://github.com/vishaltelangre/ff and also on crates.io https://crates.io/crates/find-files
 
 Videos on how to use this project coming soon!
 
