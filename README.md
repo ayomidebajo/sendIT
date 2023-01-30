@@ -33,3 +33,6 @@ New features added
 - If you edit the current file you sent and your terminal is still running, just type -c to resend the file, this will replace the old one you sent with the newly modified one!
 - Devs can change the file search levels
 
+## Support and Appreciation
+If you found this project helpful, you could star my project. It goes a long way!
+
