@@ -1,5 +1,5 @@
+use crate::args::Args;
 use crate::directory;
-use crate::{args::Args};
 use ansi_term::Colour::Green;
 use atty::Stream;
 use curl::easy::Easy;
@@ -7,7 +7,6 @@ use ignore::{WalkBuilder, WalkState};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{io, io::Read, process};
-
 
 #[derive(Debug)]
 pub struct PathPrinter<'a> {
@@ -49,8 +48,8 @@ impl<'a> PathPrinter<'a> {
     }
 
     fn print_path(&self) -> String {
-    //  This is the function that handles the file path and name and then finally sends the file
-        send_file_post(&self.path, &self.port_addr).expect_err("You didn't add the file path or name or the port, or maybe even both");
+        //  This is the function that handles the file path and name and then finally sends the file
+        send_file_post(&self.path, &self.port_addr).expect("something went wrong");
 
         self.path.to_string()
     }
@@ -209,9 +208,11 @@ fn send_file_post(file_from_arg: &str, port_addr: &str) -> tide::Result {
 
     let mut transfer = easy.transfer();
 
-    let res = transfer
-        .read_function(|buf| Ok(send_file_req_body.as_slice().read(buf).unwrap_or(0)))
-        .unwrap();
+    match transfer.read_function(|buf| Ok(send_file_req_body.as_slice().read(buf).unwrap_or(0))) {
+        Ok(_) => println!("success!"),
+        Err(_) => println!("something went wrong in transfer"),
+    }
+    // .unwrap();
 
     transfer.perform().unwrap();
     // println!("kilometer {:?}", res);

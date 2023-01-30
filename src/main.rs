@@ -55,9 +55,7 @@ async fn main() -> tide::Result<()> {
         if chosen_role.trim() == "sender" || chosen_role.trim() == "s" {
             //CLIENT
 
-            println!(
-                "Type -c to send the file, and -q to exit"
-            );
+            println!("Type -c to send the file, and -q to exit");
 
             loop {
                 let mut action_client = String::from("");
@@ -123,8 +121,10 @@ fn send_file() {
 async fn some(mut req: Request<()>) -> tide::Result {
     let file_size = req.body_bytes().await?;
 
+    println!("printing filesize {:?}", file_size);
+
     let file: search_and_print::FileSearch = serde_json::from_slice(&*file_size).unwrap();
-    //  println!("heehe 2 {:?}", &file);
+    println!("heehe 2 {:?}", &file_size);
     fs::write(file.file_name, file.file_bytes).expect("unable to write file");
 
     Ok(format!("jst stuff {:?}", req).into())
